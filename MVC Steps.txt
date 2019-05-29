@@ -1,0 +1,46 @@
+----------------------------------------
+MVC Steps:
+----------------------------------------
+1- add 4 angular files  and create 1
+	a- angular.js 				<-download
+	b- angular-route.js			<-download
+	c- angular.min.js			<-download
+	d- angular-route.min.js		<-download
+	e- MyApp.js 	<-create as below
+	(function () {
+    var app = angular.module('MyApp', ['ngRoute']);
+    app.controller('HomeController', function ($scope) {
+        $scope.Message = "Yahoo! it works!";
+		});
+	})();
+
+2-add App_Start BundleConfig.cs methode Registerbundles:
+	bundles.Add(new ScriptBundle("~/Bundles/angular")
+	.Include("~/Scripts/angular.js","~/Scripts/angular-route.js"));
+	
+3-Views/Shared/Layout.cshtml add angular support:
+	on <head> add:
+    <script src="~/Scripts/angular.js"></script>   
+    <script src="~/Scripts/angular-route.js"></script>
+	to <body> add:
+	<body ng-app="MyApp">
+	Below to Scripts add:
+    @Scripts.Render("~/bundles/jquery")   					 <-exist
+    @Scripts.Render("~/bundles/angular") 					 <-add
+	<script src="~/Scripts/MyApp.js"></script>               <-add
+    @Scripts.Render("~/bundles/bootstrap") 					 <-exist
+	
+4- add to Index.chtml:  <div ng-controller="HomeController"> {{Message}} </div>
+
+5- Run application and you should see the msg
+
+----------------------------------------
+WebApi Steps:
+----------------------------------------
+1-start new empty and create folders: "Templates" "Scripts"
+2-create 3 js files to scripts download from angular and script from hub 
+	dont forget the "otherwise" to redirects
+3-add home.html to Templates, add index.html to main path
+4-add text to index and home(home should be empty)
+5-add webservice.asmx 
+6-run
