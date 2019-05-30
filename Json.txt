@@ -1,0 +1,14 @@
+string SingleContactstr = "{\"ContactId\": \"123123\", \"FirstName\" : \"Eddie\", \"LastName\": \"Struz\", \"ContactNo1\" : \"645665\"} ";
+Contact SingleContact = new JavaScriptSerializer().Deserialize<Contact>(SingleContactstr);
+
+string MultipleContactsstr = "[{\"ContactId\": \"123123\", \"FirstName\" : \"Eddie\", \"LastName\": \"Struz\", \"ContactNo1\" : \"645665\"},{\"ContactId\": \"4534533\", \"FirstName\" : \"IrenaD\", \"Struz\": \"Struz\", \"ContactNo1\" : \"778734\"}]";
+Contact[] MultipleContactsArr = new JavaScriptSerializer().Deserialize<Contact[]>(MultipleContactsstr);
+List<Contact> MultipleContactsList = new JavaScriptSerializer().Deserialize<List<Contact>>(MultipleContactsstr);
+List < Dictionary <string,string> > MultipleContactsList2 = new JavaScriptSerializer().Deserialize<List<Dictionary<string, string>> >(MultipleContactsstr);
+
+string MultipleContactsWithName = "{\"Photos\":[{\"ContactId\": \"123123\", \"FirstName\" : \"Eddie\", \"LastName\": \"Struz\", \"ContactNo1\" : \"645665\"},{\"ContactId\": \"4534533\", \"FirstName\" : \"IrenaD\", \"Struz\": \"Struz\", \"ContactNo1\" : \"778734\"}]}";
+Dictionary<string, List<Contact>> ContactMultipleContactsWithName = new JavaScriptSerializer().Deserialize<Dictionary<string, List<Contact>>>(MultipleContactsWithName);
+Dictionary<string, List<Dictionary<string, string>>> DictionaryContactMultipleContactsWithName = new JavaScriptSerializer().Deserialize<Dictionary<string, List<Dictionary<string, string>>>>(MultipleContactsWithName);
+
+string Contactname = ContactMultipleContactsWithName["Photos"][0].FirstName;
+string Dictionarytname = ContactMultipleContactsWithName["Photos"][0].FirstName;
