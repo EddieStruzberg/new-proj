@@ -37,19 +37,41 @@ MVC Steps:
 4-add App_Start BundleConfig.cs methode Registerbundles:
 	bundles.Add(new ScriptBundle("~/Bundles/angular").Include("~/Scripts/angular.js","~/Scripts/angular-route.js"));
 	
-5-Views/Shared/Layout.cshtml add angular support:
-	on <head> add:
-    <script src="~/Scripts/angular.js"></script>   
-    <script src="~/Scripts/angular-route.js"></script>
-	to <body> add:
-	<body ng-app="MyApp">
-	Below to Scripts add:
-    @Scripts.Render("~/bundles/jquery")   					 <-exist
-    @Scripts.Render("~/bundles/angular") 					 
-	<script src="~/Scripts/MyApp.js"></script>              
-    @Scripts.Render("~/bundles/bootstrap") 					 <-exist
-	
-6- add to Index.chtml:  <div ng-controller="HomeController"> {{Message}} </div>
+5-Edit Views/Shared/Layout.cshtml:
+		<!DOCTYPE html>
+		<html>
+		<head>
+			<meta charset="utf-8" />
+			<meta name="viewport" content="width=device-width, initial-scale=1.0">
+			<title>@ViewBag.Title - My ASP.NET Application</title>
+			<script src="~/Scripts/angular.js"></script>
+			<script src="~/Scripts/angular-route.js"></script>
+			@Styles.Render("~/Content/css")
+			@Scripts.Render("~/bundles/modernizr")
+
+		</head>
+		<body ng-app="MyApp">
+			
+			<div class="container body-content">
+				@RenderBody()        
+				<footer>
+					<p>@DateTime.Now.Year - aaaa</p>
+				</footer>
+			</div>
+
+			@Scripts.Render("~/bundles/jquery")
+			@Scripts.Render("~/bundles/angular") 					 
+			<script src="~/Scripts/MyApp.js"></script> 
+			@Scripts.Render("~/bundles/bootstrap")
+			@RenderSection("scripts", required: false)
+		</body>
+		</html>
+
+6- Edit Index.chtml:  
+	@{ViewBag.Title = "Home Page";}
+	<div class="row">
+		<div ng-controller="HomeController"> {{Message}} </div>
+	</div>
 
 7- add empty DataController:
 		public class DataController : Controller
