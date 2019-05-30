@@ -1,24 +1,43 @@
 ----------------------------------------
 MVC Steps:
 ----------------------------------------
-1- add 4 angular files  and create 1
+1-  Add 4 angular files  and create 1
 	a- angular.js 				<-download
 	b- angular-route.js			<-download
 	c- angular.min.js			<-download
 	d- angular-route.min.js		<-download
-	e- MyApp.js 	<-create as below
+	
+	
+2-	Create MyApp.js
 	(function () {
     var app = angular.module('MyApp', ['ngRoute']);
     app.controller('HomeController', function ($scope) {
-        $scope.Message = "Yahoo! it works!";
+        $scope.Message = "Angular works!";
 		});
 	})();
 
-2-add App_Start BundleConfig.cs methode Registerbundles:
-	bundles.Add(new ScriptBundle("~/Bundles/angular")
-	.Include("~/Scripts/angular.js","~/Scripts/angular-route.js"));
+3-  Add to Scripts new folder and js file: AngularController/Part2Controller.js
+	angular.module('MyApp')
+	.controller('Part2Controller', function($scope,ContactService){
+	    $scope.Contact = null;
+	    ContactService.GetLastContact().then(function (d) {
+	        $scope.Contact = d.data; //success
+	    }, function () {
+	        alert('Failed'); //Failed
+	    })
+	})
+    .factory('ContactService', function($http){
+	    var fac = {};
+	    fac.GetLastContact = function(){
+	        return $http.get('/Data/GetLastContact')
+	    }
+	    return fac;
+    });
 	
-3-Views/Shared/Layout.cshtml add angular support:
+4-add App_Start BundleConfig.cs methode Registerbundles:
+	bundles.Add(new ScriptBundle("~/Bundles/angular").Include("~/Scripts/angular.js","~/Scripts/angular-route.js"));
+	
+5-Views/Shared/Layout.cshtml add angular support:
 	on <head> add:
     <script src="~/Scripts/angular.js"></script>   
     <script src="~/Scripts/angular-route.js"></script>
@@ -26,14 +45,48 @@ MVC Steps:
 	<body ng-app="MyApp">
 	Below to Scripts add:
     @Scripts.Render("~/bundles/jquery")   					 <-exist
-    @Scripts.Render("~/bundles/angular") 					 <-add
-	<script src="~/Scripts/MyApp.js"></script>               <-add
+    @Scripts.Render("~/bundles/angular") 					 
+	<script src="~/Scripts/MyApp.js"></script>              
     @Scripts.Render("~/bundles/bootstrap") 					 <-exist
 	
-4- add to Index.chtml:  <div ng-controller="HomeController"> {{Message}} </div>
+6- add to Index.chtml:  <div ng-controller="HomeController"> {{Message}} </div>
 
-5- Run application and you should see the msg
+7- add empty DataController:
+		public class DataController : Controller
+		{
+			public JsonResult GetLastContact()
+			{
+				Contact Con = new Contact();
+				return new JsonResult { Data = Con, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+			}
+		}
+		public class Contact
+		{
+			public string ContactId = "a", FirstName = "a", LastName = "a", ContactNo1= "a", ContactNo2 = "a", EmailID = "a" ,Address = "a";
+		}	
+8-Add to HomeController:
+     public ActionResult Part2()
+     {
+        return View();
+     }
 
+9-add view to Part2 in HomeController:
+	@{
+    ViewBag.Title = "Part2";
+	}
+	<h2>Part2</h2>
+	<div ng-controller="Part2Controller">
+		<table>
+			<tr> <td>FirstName:</td>  <td>{{Contact.FirstName}}</td></tr>
+			<tr>  <td>LastName:</td> <td>{{Contact.LastName}}</td>  </tr>
+		</table>
+	</div>	
+	@section scripts{
+	<script src="~/Scripts/AngularController/Part2Controller.js"></script>
+		}
+
+
+10- start app and look Url http://localhost:XXXXX/Home/Part2
 ----------------------------------------
 WebApi Steps:
 ----------------------------------------
