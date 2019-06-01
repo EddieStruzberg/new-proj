@@ -141,11 +141,20 @@ MVC Steps:
 -------------------------------------------------------------------------------
 9-Add view to Page3 in HomeController:
 	@{
-		ViewBag.Title = "Page3";
+    ViewBag.Title = "Page3";
 	}
 	<h2>Page3</h2>
 	<div ng-controller="Page3Controller">
-		<span>{{ReceivedData}}</span>
+		<table>
+			<tr>
+				<td>FirstName</td>
+				<td>{{ReceivedData.FirstName}}</td>
+			</tr>
+			<tr>
+				<td>LastName</td>
+				<td>{{ReceivedData.LastName}}</td>
+			</tr>
+		</table>
 		<button> <a href="Page2">Back to Page2</a></button>
 	</div>
 
@@ -202,4 +211,9 @@ app.service("demoService", function ($rootScope) {
         return this.TempData;
     }
 })
+
+
+
+
+
 
