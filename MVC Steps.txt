@@ -1,43 +1,66 @@
-----------------------------------------
+--------------------------------------------------------------------------------
 MVC Steps:
-----------------------------------------
+--------------------------------------------------------------------------------
 1-  Add 4 angular files  and create 1
 	a- angular.js 				<-download
 	b- angular-route.js			<-download
 	c- angular.min.js			<-download
 	d- angular-route.min.js		<-download
 	
-	
+-------------------------------------------------------------------------------	
 2-	Create MyApp.js
+
 	(function () {
-    var app = angular.module('MyApp', ['ngRoute']);
-    app.controller('HomeController', function ($scope) {
+    var app = angular.module('MyApp', ['ngRoute'])
+
+    app.config(function ($routeProvider) {
+        $routeProvider
+           .when("/Home", {
+               templateUrl: "home/Index.chtml",
+               controller: "HomeController"
+           })
+          .when("/Page2", {
+              templateUrl: "home/Page2.chtml",
+              controller: "Page2Controller"
+          })
+         .when("/Page3", {
+             templateUrl: "home/Page3.chtml",
+             controller: "Page3Controller"
+         })
+    });
+	//--------------------------------------------------------------------------------
+    app.controller("HomeController", function ($scope) {
         $scope.Message = "Angular works!";
-		});
+    });
+	//--------------------------------------------------------------------------------
+    app.controller("Page2Controller", function ($scope, $rootScope) {
+        $scope.title = "Controller 2"
+
+        $scope.SetData = function () {
+            sessionStorage.setItem("Username", $scope.sampledata);
+        }
+    });
+	//--------------------------------------------------------------------------------
+    app.controller("Page3Controller", function ($scope, $http) {
+        $scope.title = "Controller 3"
+
+        $http({
+            method: "GET",
+            url: '/Data/GetLastContact',
+            params: { packageid: sessionStorage.getItem("Username") }
+        }).then(function (response) {
+            $scope.ReceivedData = response.data
+        })
+    });
+
 	})();
 
-3-  Add to Scripts new folder and js file: AngularController/Part2Controller.js
-	angular.module('MyApp')
-	.controller('Part2Controller', function($scope,ContactService){
-	    $scope.Contact = null;
-	    ContactService.GetLastContact().then(function (d) {
-	        $scope.Contact = d.data; //success
-	    }, function () {
-	        alert('Failed'); //Failed
-	    })
-	})
-    .factory('ContactService', function($http){
-	    var fac = {};
-	    fac.GetLastContact = function(){
-	        return $http.get('/Data/GetLastContact')
-	    }
-	    return fac;
-    });
-	
-4-add App_Start BundleConfig.cs methode Registerbundles:
+-------------------------------------------------------------------------------	
+3-add App_Start BundleConfig.cs methode Registerbundles:
 	bundles.Add(new ScriptBundle("~/Bundles/angular").Include("~/Scripts/angular.js","~/Scripts/angular-route.js"));
-	
-5-Edit Views/Shared/Layout.cshtml:
+
+-------------------------------------------------------------------------------	
+4-Edit Views/Shared/Layout.cshtml:
 		<!DOCTYPE html>
 		<html>
 		<head>
@@ -51,64 +74,82 @@ MVC Steps:
 
 		</head>
 		<body ng-app="MyApp">
-			
+
 			<div class="container body-content">
-				@RenderBody()        
+				@RenderBody()
 				<footer>
 					<p>@DateTime.Now.Year - aaaa</p>
 				</footer>
 			</div>
 
+
 			@Scripts.Render("~/bundles/jquery")
-			@Scripts.Render("~/bundles/angular") 					 
-			<script src="~/Scripts/MyApp.js"></script> 
+			@Scripts.Render("~/bundles/angular")
+			<script src="~/Scripts/MyApp.js"></script>
 			@Scripts.Render("~/bundles/bootstrap")
 			@RenderSection("scripts", required: false)
 		</body>
 		</html>
 
-6- Edit Index.chtml:  
-	@{ViewBag.Title = "Home Page";}
-	<div class="row">
-		<div ng-controller="HomeController"> {{Message}} </div>
-	</div>
-
-7- add empty DataController:
-		public class DataController : Controller
-		{
-			public JsonResult GetLastContact()
-			{
-				Contact Con = new Contact();
-				return new JsonResult { Data = Con, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
-			}
-		}
-		public class Contact
-		{
-			public string ContactId = "a", FirstName = "a", LastName = "a", ContactNo1= "a", ContactNo2 = "a", EmailID = "a" ,Address = "a";
-		}	
-8-Add to HomeController:
-     public ActionResult Part2()
+-------------------------------------------------------------------------------	
+5- Edit Index.chtml:  
+		@{ViewBag.Title = "Home Page";}
+		<div class="row">
+			<div ng-controller="HomeController"> {{Message}} </div>
+			<a href="Page2" {}>go to Page2</a>
+		</div>
+-------------------------------------------------------------------------------
+6- add empty DataController:
+    public class DataController : Controller
+    {
+        public JsonResult GetLastContact(string packageid)
+        {
+            Contact Con = new Contact();
+            string b = packageid + "  Yahoo!";
+            return new JsonResult { Data = b, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+        }
+    }
+    public class Contact
+    {
+        public string ContactId = "a", FirstName = "a", LastName = "a", ContactNo1 = "a", ContactNo2 = "a", EmailID = "a", Address = "a";
+    }	
+-------------------------------------------------------------------------------		
+7-Add to HomeController:
+     public ActionResult Page2()
      {
         return View();
      }
-
-9-add view to Part2 in HomeController:
+	 public ActionResult Page3()
+     {
+        return View();
+     }
+-------------------------------------------------------------------------------	
+8-Add view to Page2 in HomeController:
 	@{
-    ViewBag.Title = "Part2";
+		ViewBag.Title = "Page2";
 	}
-	<h2>Part2</h2>
-	<div ng-controller="Part2Controller">
-		<table>
-			<tr> <td>FirstName:</td>  <td>{{Contact.FirstName}}</td></tr>
-			<tr>  <td>LastName:</td> <td>{{Contact.LastName}}</td>  </tr>
-		</table>
-	</div>	
-	@section scripts{
-	<script src="~/Scripts/AngularController/Part2Controller.js"></script>
-		}
+	<h2>Page2</h2>
+	<br />
+	<hr />
+	<div ng-controller="Page2Controller">
+		{{title}}
+		<hr />
+		<span>{{sampledata}}</span>
+		<input ng-model="sampledata" />
+		<button> <a href="Page3" ng-click="SetData()">Send Name to Page3</a> </button>
+	</div>
+-------------------------------------------------------------------------------
+9-Add view to Page3 in HomeController:
+	@{
+		ViewBag.Title = "Page3";
+	}
+	<h2>Page3</h2>
+	<div ng-controller="Page3Controller">
+		<span>{{ReceivedData}}</span>
+		<button> <a href="Page2">Back to Page2</a></button>
+	</div>
 
-
-10- start app and look Url http://localhost:XXXXX/Home/Part2
+10- set startup page to http://localhost:XXX/Home/Index
 ----------------------------------------
 WebApi Steps:
 ----------------------------------------
@@ -119,3 +160,46 @@ WebApi Steps:
 4-add text to index and home(home should be empty)
 5-add webservice.asmx 
 6-run
+
+------------------------------------------------------------------------------------
+EVENTS
+------------------------------------------------------------------------------------
+app.controller("Page2Controller", function ($scope, $http, $rootScope, demoService) {
+    $scope.title = "Controller 2"
+
+    $rootScope.$on("dumyevent", function () {
+        var t = demoService.GetData();
+
+        $http({
+            method: "GET",
+            url: '/Data/GetLastContact',
+            params: { packageid: t }
+        }).then(function (response) {
+            $scope.ReceivedData = response.data
+        })
+    });
+
+});
+
+app.controller("Page4Controller", function ($scope, demoService) {
+    $scope.title = "Controller 4"
+
+    $scope.SendData = function () {
+        sessionStorage.setItem("Username", $scope.sampledata);
+        var d = $scope.sampledata;
+        demoService.SetData(d);
+    }
+});
+
+app.service("demoService", function ($rootScope) {
+    this.TempData = "";
+
+    this.SetData = function (d) {
+        this.TempData = d;
+        $rootScope.$emit("dumyevent")
+    }
+    this.GetData = function () {
+        return this.TempData;
+    }
+})
+
