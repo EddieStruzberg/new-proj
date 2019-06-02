@@ -104,15 +104,16 @@ MVC Steps:
     {
         public JsonResult GetLastContact(string packageid)
         {
-            Contact Con = new Contact();
             string b = packageid + "  Yahoo!";
-            return new JsonResult { Data = b, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            Contact Con = new Contact();
+            return new JsonResult { Data = Con, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+        }
+
+        public class Contact
+        {
+            public string ContactId = "123123", FirstName = "Eddie", LastName = "Struz", ContactNo1 = "123123", ContactNo2 = "123123", EmailID = "eddie@gmail.com", Address = "agefen24";
         }
     }
-    public class Contact
-    {
-        public string ContactId = "a", FirstName = "a", LastName = "a", ContactNo1 = "a", ContactNo2 = "a", EmailID = "a", Address = "a";
-    }	
 -------------------------------------------------------------------------------		
 7-Add to HomeController:
      public ActionResult Page2()
