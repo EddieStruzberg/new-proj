@@ -1,0 +1,90 @@
+1-add NuGet-Packages: "Topshelf"
+
+2-Paste the Code below into your application and include all imports.
+
+	using System;
+	using System.Threading;
+	using Topshelf;
+	using Topshelf.Runtime;
+	namespace MyConsoleApplication
+	{
+		public class MyService
+		{
+			public MyService(HostSettings settings)
+			{
+			}
+
+			private SemaphoreSlim _semaphoreToRequestStop;
+			private Thread _thread;
+
+			public void Start()
+			{
+				_semaphoreToRequestStop = new SemaphoreSlim(0);
+				_thread = new Thread(DoWork);
+				_thread.Start();
+			}
+
+			public void Stop()
+			{
+				_semaphoreToRequestStop.Release();
+				_thread.Join();
+			}
+
+			private void DoWork()
+			{
+				while (true)
+				{
+					Console.WriteLine("doing work..");
+					if (_semaphoreToRequestStop.Wait(500))
+					{
+						Console.WriteLine("Stopped");
+						break;
+					}
+				}
+			}
+		}
+
+		public class Program
+		{
+			public static void Main()
+			{
+
+				HostFactory.Run(x =>                                 
+				{
+					x.StartAutomatically(); // Start the service automatically
+
+					x.EnableServiceRecovery(rc =>
+					{
+						rc.RestartService(1); // restart the service after 1 minute
+					});
+
+
+					x.Service<MyService>(s =>
+					{
+						s.ConstructUsing(hostSettings => new MyService(hostSettings));
+						s.WhenStarted(tc => tc.Start());             
+						s.WhenStopped(tc => tc.Stop());               
+					});
+					x.RunAsLocalSystem();                            
+
+					x.SetDescription("MyDescription");        
+					x.SetDisplayName("MyDisplayName");                       
+					x.SetServiceName("MyServiceName");    
+
+				});                                                 
+			}
+		}
+	}
+
+3-Switch from “Debug” mode to “Release” and build the application.
+
+4-Run cmd.exe as administrator 
+5-Navigate the console to .\myConsoleApplication\bin\Release\
+6-run command:   .\myConsoleApplication.exe install
+7- service created find it and start
+
+8-some more comands:
+.\MyFirstService.exe uninstall
+.\MyFirstService.exe install
+.\MyFirstService.exe start
+"MyFirstService.exe" install -servicename "MyFirstServiceName" -displayname "MyFirstService Display Name" --autostart start
