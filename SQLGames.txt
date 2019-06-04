@@ -1,0 +1,94 @@
+USE [FootballStats]
+GO
+/****** Object:  StoredProcedure [dbo].[FootballCalcScoreToTeams]    Script Date: 03-Jun-19 8:17:50 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE or ALTER PROCEDURE [dbo].[FootballCalcScoreToTeams] (
+	@TeamsTableName varchar(50), 
+	@compotition varchar(50),
+	@FromDate varchar(50),
+	@ToDAte varchar(50)
+)
+AS
+BEGIN
+
+IF (EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'SpanishTeamsList'  or  TABLE_NAME = 'SpanishTeamsList'))
+	DROP TABLE SpanishTeamsList;
+
+DECLARE @aaa TABLE (TeamName VARCHAR(50),HomeScore float)
+insert into @aaa select * from tempTeamsList 
+
+
+
+DECLARE @TeamsList TABLE (Value NVARCHAR(50))
+insert into @TeamsList select * from tempTeamsList 
+DECLARE @SeasonsList TABLE (Value NVARCHAR(50))
+
+INSERT INTO @SeasonsList VALUES ('2016/2017')
+INSERT INTO @SeasonsList VALUES ('2015/2016')
+INSERT INTO @SeasonsList VALUES ('2014/2015')
+
+
+DECLARE @Team varchar(50)
+DECLARE db_Teamcursor CURSOR FOR  
+
+SELECT Value FROM @TeamsList
+OPEN db_Teamcursor   
+FETCH NEXT FROM db_Teamcursor INTO @Team   
+WHILE @@FETCH_STATUS = 0   
+BEGIN   
+
+		DECLARE db_cursorAway CURSOR FOR  
+		SELECT Value FROM @SeasonsList
+
+		OPEN db_cursorAway   
+		FETCH NEXT FROM db_cursorAway INTO @SeasonAway   
+		WHILE @@FETCH_STATUS = 0   
+		BEGIN   
+				-- code go here
+
+				FETCH NEXT FROM db_cursorAway INTO @SeasonAway   
+		END   
+		CLOSE db_cursorAway   
+		DEALLOCATE db_cursorAway
+
+
+		FETCH NEXT FROM db_Teamcursor INTO @Team   
+END   
+CLOSE db_Teamcursor   
+DEALLOCATE db_Teamcursor
+
+
+select h.TeamName into SpanishTeamsList
+from @HomeTotalStatsPerTeamAllSeasonsList h
+join @AwayTotalStatsPerTeamAllSeasonsList a
+   on h.TeamName = a.TeamName
+
+
+INSERT INTO SpanishTeamsList VALUES ( 'Default'	 ,@HomeScoreVal ,@HomeCalcedScoreVal  );
+
+DECLARE @sql VARCHAR(MAX)
+SET @sql = 'IF (EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = ''' +  @TeamsTableName +'''  or  TABLE_NAME = ''' +  @TeamsTableName +''')) drop TABLE ' +  @TeamsTableName
+Exec (@sql)
+SET @sql = 'select * into ' +  @TeamsTableName +' from SpanishTeamsList'
+Exec (@sql)
+
+DROP TABLE SpanishTeamsList;
+
+END
+
+
+--------------
+
+DECLARE @Temptry2 TABLE (Value1 VARCHAR(50),Value2 int)
+declare @aaa varchar(50)
+
+insert into @Temptry2
+SELECT Compotition,count(Compotition) 
+FROM  [FootballStats].[dbo].[MatchesStats]
+group by Compotition
+
+
+select @aaa = max(Value2) from @Temptry2
