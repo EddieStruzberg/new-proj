@@ -214,7 +214,19 @@ app.service("demoService", function ($rootScope) {
 })
 
 
-
+------------------------------------------------------------------
+        public ActionResult Page2(string Name)
+        {
+            if (Name.Equals("aaa"))
+                return View("~/Views/Home/Page2.cshtml");
+            else
+                return this.Page3();
+        }
+	on index:
+	<form action="Page2" method="post">
+		<input type="text" name="Name" />
+		<input type="submit" value="go" />
+    	</form>
 
 
 
