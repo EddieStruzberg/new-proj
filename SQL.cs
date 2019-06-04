@@ -49,6 +49,13 @@ namespace ConsoleApplication3
             //Email varchar(255),
             //orderid varchar(255)
             //);
+            
+            //  DECLARE @Temptry2 TABLE (Value1 VARCHAR(50),Value2 int)
+            //declare @aaa varchar(50)
+            //insert into @Temptry2
+            //SELECT Compotition,count(Compotition) 
+            //FROM  [FootballStats].[dbo].[MatchesStats]
+            //group by Compotition
         }
     }
 }
