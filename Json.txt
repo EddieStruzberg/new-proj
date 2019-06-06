@@ -12,3 +12,38 @@ Dictionary<string, List<Dictionary<string, string>>> DictionaryContactMultipleCo
 
 string Contactname = ContactMultipleContactsWithName["Photos"][0].FirstName;
 string Dictionarytname = ContactMultipleContactsWithName["Photos"][0].FirstName;
+
+
+
+
+Dictionary<string, object> Dictionarypart1 = new JavaScriptSerializer().Deserialize<Dictionary<string, object>>(htmlString);
+ArrayList myArrayList =  (ArrayList)Dictionarypart1["items"];
+var a = (Dictionary<string, object>)myArrayList[1];
+            
+GitData Data = new JavaScriptSerializer().Deserialize<GitData>(htmlString);
+public class GitData
+        {
+            public string total_count { get; set; }
+            public string incomplete_results { get; set; }
+            public List<Dictionary<string, object>> items { get; set; }
+
+        }
+        
+---------------------------------------------------------------------------------------
+ api:
+ 
+ 
+            ServicePointManager.Expect100Continue = true;
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create("https://api.github.com/search/repositories?q=YOUR_SEARCH_KEYWORD");
+            request.UseDefaultCredentials = true;
+            request.Proxy.Credentials = System.Net.CredentialCache.DefaultCredentials;
+            request.UserAgent = "[Chrome]";
+            request.Accept = "*/*";
+
+            var Response = request.GetResponse();
+            string htmlString;
+            using (var reader = new StreamReader(Response.GetResponseStream()))
+            {
+                htmlString = reader.ReadToEnd();
+            }
