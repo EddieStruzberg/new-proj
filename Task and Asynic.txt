@@ -1,0 +1,14 @@
+        private int CountChars()
+        {
+            Thread.Sleep(2000);
+            return 31;
+        }
+
+        private async void button_Click(object sender, RoutedEventArgs e)
+        {
+            textBox.Text = "Loading";
+            Task<int> task = new Task<int>(CountChars);
+            task.Start();
+            int count = await task;
+            textBox.Text = "Stopped result is "+ count;
+        }
