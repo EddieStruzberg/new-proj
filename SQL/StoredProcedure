@@ -1,0 +1,26 @@
+USE [FootballStats]
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE PROCEDURE [dbo].[GetALLMatchStatsWhenOneTwo]
+AS
+BEGIN
+
+--drop TABLE MatchStatsWhenOneTwo
+DECLARE @MatchStatsWhenOneTwo TABLE(id VARCHAR(50) ,HomeTeamShots VARCHAR(50) ,AwayTeamShots VARCHAR(50) ,FromMin VARCHAR(50))
+Select * into MatchStatsWhenOneTwo  from  @MatchStatsWhenOneTwo
+
+		declare @matchid int
+		declare @Count int = 0
+		declare @numGames int = (SELECT count(id) FROM MatchesStats)
+
+		WHILE @Count < @numGames
+		BEGIN
+			    SET @matchid = (SELECT id FROM MatchesStats ORDER BY id OFFSET @Count  ROWS FETCH NEXT 1 ROWS ONLY)
+			  --Do stuff...
+				set @Count = @Count + 1
+		END
+END
