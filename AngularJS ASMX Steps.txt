@@ -1,0 +1,445 @@
+1-add folder: Scripts and Views
+----------------------------------------------------------
+2-add to Scripts-> Script.js:
+
+	//var myApp = angular.module("myModule", []);
+	var myApp = angular.module('myModule', ['ngRoute']);
+
+	myApp.config(function ($routeProvider) {
+		$routeProvider
+		  .when("/Page1", {
+			  templateUrl: "Page1.html",
+		  })
+		 .when("/Page2", {
+			 templateUrl: "Page2.html",
+		 })
+	});
+
+	myApp.controller("myController", function ($scope) {
+		$scope.message = "Hello";
+	});
+
+	myApp.controller("MsgFromAPIController", function ($scope, $http) {
+		var t = "3";
+
+			$http({ method: "get", url: '../angularjswebapi.asmx/GetPoeBotDataGet', params: { packageid: t, aaa: "hello2" } })
+					   .then(function (response) { $scope.Data = response.data })
+
+		//$http({ method: "post", url: '../angularjswebapi.asmx/GetPoeBotDataPost', data: { packageid: t, aaa: "hello2" } })
+		//              .then(function (response) {
+		//                  $scope.Data = JSON.parse(response.data.d);
+		//                  t = 4;
+		//              }, function (error) { })
+
+	});
+
+	//myApp.controller("myController2", function ($scope) {
+	//    $scope.imagePath = "assets\\images\\stash1.jpg";
+	//    $scope.imagePath2 = "assets\\images\\stash2.jpg";
+	//});
+
+----------------------------------------------------------
+3-add HTML FIle to Views-> MainPage.html
+	<!DOCTYPE html>
+	<html ng-app="myModule">
+	<head>
+		<script src="https://code.angularjs.org/1.7.9/angular.js"></script>
+		<script src="https://code.angularjs.org/1.7.8/angular-route.js"></script>
+		<script src="https://code.angularjs.org/1.7.9/angular-route.min.js"></script>
+		<script src="https://code.angularjs.org/1.7.8/angular.min.js"></script>
+		<script src="../Scripts/Script.js"></script>
+		<link href="main.css" rel="stylesheet" />
+	</head>
+
+	<body>
+
+		<header>
+			<div class="bg-text" ng-controller="myController" style="color:White">
+				  <h1>My App</h1>
+			</div>
+		</header>
+
+		<div ng-controller="MsgFromAPIController">
+			<div class="container body-content">
+				<ul>
+					<li><a href="MainPage.html">Main Page</a></li>
+					<li><a href="#!/Page1">PAGE1</a></li>
+					<li><a href="#!/Page2">PAGE2</a></li>
+				</ul>
+			</div>
+		</div>
+
+		<div>
+			<ng-view></ng-view>
+		</div>
+
+		<footer>
+			<p>Author: Eddie Struzberg</p>
+			<p>EddieStruz@Gmail.Com</p>
+		</footer>
+
+	</body>
+	</html>
+----------------------------------------------------------
+4- add HTML FIle to Views-> Page1.html
+
+<div class="bg-text" ng-controller="myController" style="color:White">
+    <h1>{{message}}</h1>
+</div>
+
+<div ng-controller="MsgFromAPIController">
+
+    <div class="bg-text" ng-controller="myController" style="color:White">
+        <h2>Results</h2>
+    </div>
+
+    <div style="width:100%">
+        <table style="width:100%">
+            <tr> <th>Full Name</th> <th>Phone Number</th> <th>Number of Orders</th> </tr>
+            <tr ng-repeat="Contact in Data">
+                <td>{{Contact.fullName}}</td>
+                <td>{{Contact.phoneNumber}}</td>
+                <td>{{Contact.NumOfOrders}}</td>
+            </tr>
+        </table>
+    </div>
+
+</div>
+
+----------------------------------------------------------
+5- add HTML FIle to Views-> Page2.html
+	<p>Coming soon</p>
+----------------------------------------------------------
+6- add css FIle to Views-> main.css
+	ul { list-style-type: none;margin: 0;padding: 0; overflow: hidden;background-color: #333;}
+	li {float: left;}
+	li a { display: block;color: white; text-align: center;padding: 14px 16px;text-decoration: none;}
+	li a:hover { background-color: #111;}
+
+	body {
+	  background-image: url('assets/images/background.jpg');
+	  background-attachment: fixed;
+	  background-position: center;
+	  background-repeat: no-repeat;
+	  background-size: cover;
+	}
+
+	table {
+	  border-collapse: collapse;
+	  width: 100%;
+	}
+
+	th, td {
+	  padding: 8px;
+	  text-align: left;
+	  border-bottom: 1px solid #ddd;
+	}
+
+	tr:hover {background-color:#f5f5f5;}
+
+	div.pm {
+	  background-color: rgba(111,111,111,0.5);
+	  width: 500px;
+	  height: 200px;
+	  overflow: scroll;
+	}
+
+	.bg-text {
+		background-color: #000000;
+		overflow: hidden;
+		padding: 10px 10px 10px 10px;
+		position: relative;
+		width: 100%;
+	}
+
+	footer {
+	  text-align: center;
+	  padding: 3px;
+	  background-color: black;
+	  color: white;
+	}
+
+----------------------------------------------------------
+7- create asmx service angularjswebapi:
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Script.Serialization;
+using System.Web.Services;
+using BLL;
+
+namespace WebApplication1
+{
+    /// <summary>
+    /// Summary description for webservice
+    /// </summary>
+    [WebService(Namespace = "http://tempuri.org/")]
+    [WebServiceBinding(ConformsTo = WsiProfiles.BasicProfile1_1)]
+    [System.ComponentModel.ToolboxItem(false)]
+    // To allow this Web Service to be called from script, using ASP.NET AJAX, uncomment the following line. 
+    [System.Web.Script.Services.ScriptService]
+    public class angularjswebapi : System.Web.Services.WebService
+    {
+        Base BaseBLL = new Base();
+        [WebMethod]
+        public void GetPoeBotDataGet(string packageid, string aaa)
+        {
+            var Res = BaseBLL.ContactBL.GetContacts();
+
+            string json = (new JavaScriptSerializer()).Serialize(Res);
+            HttpContext.Current.Response.Write(json);
+        }
+
+        [WebMethod]
+        public string GetPoeBotDataPost(string packageid, string aaa)
+        {
+            var Res = BaseBLL.ContactBL.GetContacts();
+            return (new JavaScriptSerializer()).Serialize(Res);
+            //return JsonConvert.SerializeObject(Res);
+        }
+    }
+}
+
+----------------------------------------------------------			
+8- add to Web.Config under system.web:
+    <webServices>
+      <protocols>
+        <add name="HttpGet"/>
+        <add name="HttpPost"/>
+      </protocols>
+    </webServices>
+----------------------------------------------------------		
+9-go to proj properties->web tab-> 
+and set:specific page: Views/MainPage.html
+------------------------------------------------------------------------------------------------------------------------
+10- Add new projects to sln BLL , DAL and Containers 
+	add references.
+11- Add Class names:
+	Contact.cs
+	BLL.cs , ContactBL.cs
+	DAL.cs , ContactDAL.cs
+-------------------------------------------------------------------------------
+12: add SP to SQL and use it, example:
+		USE AppDB
+		GO
+		create PROCEDURE GetOrders (
+			@TeamsTableName varchar(50), 
+			@compotition varchar(50),
+				@FromDate datetime,
+				@ToDAte datetime,
+				@IsBoth bit,
+				@MaleOrFemale bit
+		)
+		AS
+		BEGIN
+			  SELECT FullName,PhoneNumber , count(O.order_by_User) as NumOfOrders
+			  FROM [AppDB].[dbo].[User]
+			  join Orders O on UserId = O.order_by_User
+			  where OrderDate > @FromDate and  OrderDate < @ToDAte
+			  and (IsMale = @MaleOrFemale and @IsBoth = 0 or @IsBoth = 1)
+			  group by [FullName],PhoneNumber
+		END
+-------------------------------------------------------------------------------
+13-	Contact.cs
+
+	using System;
+	using System.Collections.Generic;
+	using System.Linq;
+	using System.Text;
+	using System.Threading.Tasks;
+
+	namespace Containers
+	{
+		public class Contact
+		{
+			public string fullName, phoneNumber;
+			public int NumOfOrders;
+
+			public Contact()
+			{
+				fullName = "Eddie Struzberg";
+				phoneNumber = "0547654645";
+				NumOfOrders = 5;
+			}
+			public Contact(string _fullName, string _phoneNumber, int _numberOfOrders)
+			{
+				fullName = _fullName;
+				phoneNumber = _phoneNumber;
+				NumOfOrders = _numberOfOrders;
+			}
+		}
+	}
+-------------------------------------------------------------------------------
+14- BLL.cs
+
+	using System;
+	using System.Collections.Generic;
+	using System.Linq;
+	using System.Text;
+	using System.Threading.Tasks;
+
+	namespace BLL
+	{
+		public class Base
+		{
+			private ContactBL contactBL;
+			public ContactBL ContactBL
+			{
+				get
+				{
+					if (contactBL == null)
+						contactBL = new ContactBL();
+					return contactBL;
+				}
+			}
+		}
+	}
+-------------------------------------------------------------------------------
+15- ContactBL.cs
+	using Containers;
+	using DAL;
+	using System;
+	using System.Collections.Generic;
+	using System.Linq;
+	using System.Text;
+	using System.Threading.Tasks;
+
+	namespace BLL
+	{
+		public class ContactBL
+		{
+			private ContactDAL contactDAL;
+			protected ContactDAL ContactDAL
+			{
+				get
+				{
+					if (contactDAL == null)
+						contactDAL = new ContactDAL();
+					return contactDAL;
+				}
+			}
+
+			public List<Contact> GetContacts()
+			{
+				return ContactDAL.GetContacts();
+			}
+		}
+	}
+
+-------------------------------------------------------------------------------	
+16- ContactDAL.cs
+	using Containers;
+	using System;
+	using System.Collections.Generic;
+	using System.Linq;
+	using System.Text;
+	using System.Threading.Tasks;
+	using System.Web.Script.Serialization;
+
+	namespace DAL
+	{
+		public class ContactDAL
+		{
+			private List<Contact> Contacts = new List<Contact>();
+
+			private JavaScriptSerializer serializer = new JavaScriptSerializer();
+
+			private DAL dal;
+			private DAL DAL
+			{
+				get
+				{
+					if (dal == null)
+						dal = new DAL();
+					return dal;
+				}
+			}
+
+			public ContactDAL()
+			{
+			}
+
+			public List<Contact> GetContacts()
+			{
+				Contacts.Add(new Contact());
+				Contacts.Add(new Contact("John Due","055442323",7));
+
+				//var ContacsFromSP = DAL.DBStoredProceedureRun("GetOrders", "tblName", "la liga", DateTime.Now.AddYears(-10), DateTime.Now, true, true);
+				//Contacts = serializer.ConvertToType<List<Contact>>(ContacsFromSP);
+
+				return Contacts;
+			}
+		}
+	}
+	
+-------------------------------------------------------------------------------
+17- DAL.cs
+	using System;
+	using System.Collections.Generic;
+	using System.Data;
+	using System.Data.SqlClient;
+	using System.Linq;
+	using System.Text;
+	using System.Threading.Tasks;
+
+	namespace DAL
+	{
+		public class DAL
+		{
+			private string connectionString;
+			public DAL()
+			{
+				string server = @"EDDIES-PC\SQLEXPRESS";
+				string DBName = "AppDB";
+				//string username = "eddie";
+				//string password = "aaa";
+				//string connectionString = // add db name if need @"Trusted_Connection=True; Server=" + server + "; Data Source=localhost; Initial Catalog=NLHospital; Integrated Security=false;user id=" + username + ";password=" + password;
+
+				connectionString = @"Trusted_Connection=True;Server=" + server + "; DataBase = " + DBName;
+			}
+			public List<Dictionary<string, dynamic>> DBStoredProceedureRun(string SPName, params object[] args)
+			{
+				var results = new List<Dictionary<string, dynamic>>();
+
+				using (SqlConnection connection = new SqlConnection(connectionString))
+				{
+					connection.Open();
+
+					SqlCommand cmd = new SqlCommand(SPName, connection);
+					cmd.CommandType = CommandType.StoredProcedure;
+					cmd.CommandTimeout = 60;
+
+					SqlCommandBuilder.DeriveParameters(cmd);
+					for (int i = 0; i < args.Length; i++)
+						cmd.Parameters[i + 1].Value = args[i];
+
+					var reader = cmd.ExecuteReader();
+
+					var columnNames = Enumerable.Range(0, reader.FieldCount).Select(reader.GetName).ToList();
+
+					while (reader.Read())
+					{
+						var result = new Dictionary<string, dynamic>();
+						foreach (var colName in columnNames)
+							result[colName] = reader[colName];
+						results.Add(result);
+					}
+
+					connection.Close();
+				}
+				return results;
+			}
+		}
+	}
+-------------------------------------------------------------------------------	
+18: In DAL: Change Connection string, SP name and DB name
+-------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------
+Done! Dont forget: 
+	Change connectionString(db name, sp name)
+	create needed sp with needed cols
+	add classes for container: aaa , aaaBL, aaaDAL
+	add names to page1 {{data.aaablabla}}
