@@ -1,0 +1,34 @@
+       int[] array2 = new int[] { 10, 80, 30, 90, 40, 50, 70 };
+       myQuickSort(array2, 0, array2.Length);
+            
+       
+       public static void myQuickSort(int[] arr, int indexFrom, int indexTo)
+        {
+            if (indexFrom < indexTo)
+            {
+                int newPivot = myPartition(arr, indexFrom, indexTo);
+                myQuickSort(arr, indexFrom, newPivot - 1);
+                myQuickSort(arr, newPivot + 1, indexTo);
+            }
+        }
+        public static int myPartition(int[] arr, int startIndex, int pivot)
+        {
+            int i = startIndex - 1;
+            int pivotNum = arr[pivot];
+            for (int j = startIndex; j <= pivot - 1; j++)
+            {
+                if (arr[j] <= pivotNum)
+                {
+                    i++;
+                    Swap(arr, i, j);
+                }
+            }
+            Swap(arr, i + 1, pivot);
+            return i;
+        }
+        private static void Swap(int[] arr, int i, int j)
+        {
+            int temp = arr[i];
+            arr[i] = arr[j];
+            arr[j] = temp;
+        }
