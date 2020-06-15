@@ -1,0 +1,56 @@
+        int[] array2 = new int[] { 10, 80, 30, 90, 40, 50, 70 };
+        int[] sortedArray = myMergeSort2(array2);
+        
+        public static int[] myMergeSort(int[] array)
+        {
+            int mid = array.Length / 2;
+
+            int[] leftArr = array.Take(mid).ToArray();
+            int[] rightArr = array.Skip(mid).ToArray();
+
+            if (mid >= 1)
+            {
+                leftArr = myMergeSort(leftArr);
+                rightArr = myMergeSort(rightArr);
+            }
+
+            return Sort(leftArr, rightArr);
+        }
+
+        private static int[] Sort(int[] leftArr, int[] rightArr)
+        {
+            int[] sortedArr = new int[leftArr.Length + rightArr.Length];
+
+            int index = 0;
+            int rightIndex = 0;
+            int leftIndex = 0;
+
+            while (index < sortedArr.Length)
+            {
+                if (rightIndex < rightArr.Length && leftIndex < leftArr.Length)
+                {
+                    if (leftArr[leftIndex] >= rightArr[rightIndex])
+                    {
+                        sortedArr[index] = leftArr[leftIndex];
+                        leftIndex++;
+                    }
+                    else
+                    {
+                        sortedArr[index] = rightArr[rightIndex];
+                        rightIndex++;
+                    }
+                }
+                else if (rightIndex < rightArr.Length)
+                {
+                    sortedArr[index] = rightArr[rightIndex];
+                    rightIndex++;
+                }
+                else
+                {
+                    sortedArr[index] = leftArr[leftIndex];
+                    leftIndex++;
+                }
+                index++;
+            }
+            return sortedArr;
+        }
