@@ -1,0 +1,14 @@
+        public static int BinarySearch(int[] a, int x, int left, int right)
+        {
+            if (left > right)
+                return -1;
+
+            int middle = (left + right) / 2;
+            if (a[middle] == x)
+                return middle;
+
+            if (x < a[middle])
+                return BinarySearch(a, x, left, middle - 1);
+
+            return BinarySearch(a, x, middle + 1, right);
+        }
