@@ -1,0 +1,505 @@
+ --------------------------------------------------------------------------------
+MVC Steps: Empty mvc
+--------------------------------------------------------------------------------
+1-  Create in scripts/:  script.js
+
+	var myApp = angular.module('myModule', ['ngRoute']);
+
+	myApp.config(function ($routeProvider) {
+		$routeProvider
+		    //.when("/Login", {
+			//  templateUrl: "/Home/Login",
+			//})
+		 .when("/Page2", {
+			 templateUrl: "/Home/Page2",
+		 })
+		 .when("/Page3", {
+				  templateUrl: "/Home/Page3",
+			  })
+	});
+
+	myApp.controller("myController", function ($scope) {
+		$scope.message = "Hello";
+	});
+
+	myApp.controller("MsgFromAPIController", function ($scope, $http) {
+		var t = "3";
+
+		//$http({ method: "get", url: '../Data/GetNames', params: { packageid: t, aaa: "hello2" } })
+		//           .then(function (response) { $scope.Data = response.data })
+
+		$http({
+			method: "post", url: '../Data/GetLastContact',
+			data: {
+				Data: "Username",
+				FromDate: new Date("2.2.2019"),
+				ToDate: new Date("2.2.2019"),
+				Gender: true
+			}
+		})
+		.then(function (response) {
+				  $scope.Data = response.data;
+				  t = 4;
+			 }, function (error) { })
+	});
+
+	//myApp.controller("myController2", function ($scope) {
+	//    $scope.imagePath = "assets\\images\\stash1.jpg";
+	//    $scope.imagePath2 = "assets\\images\\stash2.jpg";
+	//});
+
+--------------------------------------------------------------------------------	
+2-Add HomeController, and add the following:
+     public ActionResult Page2()
+     {
+        return View();
+     }
+	 public ActionResult Page3()
+     {
+        return View();
+     }
+	 //public ActionResult Login()
+     //{
+     //   return View();
+     //}
+	 
+-------------------------------------------------------------------------------	
+3-Add view to Index in HomeController:
+
+    <header>
+        <div class="bg-text" ng-controller="myController" style="color:White">
+            <h1>My App - Index</h1>
+            <h1>{{message}}</h1>
+        </div>
+    </header>
+
+    <div ng-controller="MsgFromAPIController">
+        <div class="container body-content">
+            <ul>
+                //<li><a href="#!/Login">Login</a></li>
+                <li><a href="#!/Page2">PAGE2</a></li>
+                <li><a href="#!/Page3">PAGE3</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div>
+        <ng-view></ng-view>
+    </div>
+
+    <footer>
+        <p>Author: Eddie Struzberg</p>
+        <p>EddieStruz@Gmail.Com</p>
+    </footer>	 
+-------------------------------------------------------------------------------	
+4-Add view to Page2 in HomeController:
+
+	<div class="bg-text" ng-controller="myController" style="color:White">
+		<h1>{{message}}</h1>
+	</div>
+
+	<div ng-controller="MsgFromAPIController">
+		<div class="bg-text" ng-controller="myController" style="color:White">
+			<h2>Results</h2>
+		</div>
+
+		<div style="width:100%">
+			<table style="width:100%">
+				<tr> <th>Full Name</th> <th>Phone Number</th> <th>Number of Orders</th> </tr>
+				<tr ng-repeat="Contact in Data">
+					<td>{{Contact.fullName}}</td>
+					<td>{{Contact.phoneNumber}}</td>
+					<td>{{Contact.NumOfOrders}}</td>
+				</tr>
+			</table>
+		</div>
+	</div>
+
+-------------------------------------------------------------------------------
+5-Add view to Page3 in HomeController:
+		<p>Coming soon</p>
+		
+6-Add view to Login in HomeController:		
+		<div class="container" ng-controller="loginController">
+		<h2>Login Form</h2>
+		<form id="myLogin">
+			<label for="uname"><b>Username</b></label>
+			<input type="text" placeholder="Enter Username" name="uname" ng-model="username" required>
+			<label for="psw"><b>Password</b></label>
+			<input type="password" placeholder="Enter Password" name="psw" ng-model="password" required>
+			<button type="submit" ng-click="submit()">Login</button>
+			<button type="submit" ng-click="TryGetDATA()">TryGetDATA</button>
+		</form>
+		</div>
+-------------------------------------------------------------------------------
+7- add empty DataController:
+
+	    public JsonResult GetLastContact(string Data, DateTime FromDate, DateTime ToDate, bool Gender)
+        {
+            var Res = Base.ContactBL.GetContacts();
+            //List<Contact> Res = new List<Contact>();
+            //Res.Add(new Contact("Eddie2", "0564654", 7));
+            //Res.Add(new Contact("Rambo2", "0654564", 17));
+
+            return new JsonResult { Data = Res, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+        }
+
+        public JsonResult GetNames(string packageid, string aaa)
+        {
+            var Res = Base.ContactBL.GetContacts();
+
+            //List<Contact> Res = new List<Contact>();
+            //Res.Add(new Contact("Eddie", "0564654", 5));
+            //Res.Add(new Contact("Rambo", "0654564", 15));
+
+            return new JsonResult { Data = Res, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+        }
+
+        public class Contact
+        {
+            public string fullName, phoneNumber;
+            public int NumOfOrders;
+            public Contact(string _fullName, string _phoneNumber, int _numberOfOrders)
+            {
+                fullName = _fullName;
+                phoneNumber = _phoneNumber;
+                NumOfOrders = _numberOfOrders;
+            }
+        }
+-------------------------------------------------------------------------------	
+8 - Add To Content folder: Site.css:
+	
+	ul { list-style-type: none;margin: 0;padding: 0; overflow: hidden;background-color: #333;}
+	li {float: left;}
+	li a { display: block;color: white; text-align: center;padding: 14px 16px;text-decoration: none;}
+	li a:hover { background-color: #111;}
+
+	body {
+	  background-image: url('assets/images/background.jpg');
+	  background-attachment: fixed;
+	  background-position: center;
+	  background-repeat: no-repeat;
+	  background-size: cover;
+	}
+
+	table {
+	  border-collapse: collapse;
+	  width: 100%;
+	}
+
+	th, td {
+	  padding: 8px;
+	  text-align: left;
+	  border-bottom: 1px solid #ddd;
+	}
+
+	tr:hover {background-color:#f5f5f5;}
+
+	div.pm {
+	  background-color: rgba(111,111,111,0.5);
+	  width: 500px;
+	  height: 200px;
+	  overflow: scroll;
+	}
+
+	.bg-text {
+		background-color: #000000;
+		overflow: hidden;
+		padding: 10px 10px 10px 10px;
+		position: relative;
+		width: 100%;
+	}
+
+	footer {
+	  text-align: center;
+	  padding: 3px;
+	  background-color: black;
+	  color: white;
+	}
+		
+-------------------------------------------------------------------------------	
+9-Edit Views/Shared/Layout.cshtml:
+		
+	<!DOCTYPE html>
+	<html>
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<script src="https://code.angularjs.org/1.7.9/angular.js"></script>
+		<script src="https://code.angularjs.org/1.7.9/angular-route.js"></script>
+		<script src="https://code.angularjs.org/1.7.9/angular.min.js"></script>
+		<script src="https://code.angularjs.org/1.7.9/angular-route.min.js"></script>
+		<link href="~/Content/Site.css" rel="stylesheet" />
+		<script src="~/Scripts/Script.js"></script>
+	</head>
+	<body ng-app="myModule">
+
+		<div class="container body-content">
+			@RenderBody()
+		</div>
+	</body>
+	</html>
+-------------------------------------------------------------------------------
+10-  Add new projects to sln BLL, DAL and Models.
+11- Add references and Classes:
+	Contact.cs
+	BLL.cs , ContactBL.cs
+	DAL.cs , ContactDAL.cs
+-------------------------------------------------------------------------------
+12-	Contact.cs
+
+	using System;
+	using System.Collections.Generic;
+	using System.Linq;
+	using System.Text;
+	using System.Threading.Tasks;
+
+	namespace Models
+	{
+		public class Contact
+		{
+			public string fullName, phoneNumber;
+			public int NumOfOrders;
+
+			public Contact()
+			{
+				fullName = "Eddie Struzberg";
+				phoneNumber = "0547654645";
+				NumOfOrders = 5;
+			}
+			public Contact(string _fullName, string _phoneNumber, int _numberOfOrders)
+			{
+				fullName = _fullName;
+				phoneNumber = _phoneNumber;
+				NumOfOrders = _numberOfOrders;
+			}
+		}
+	}
+-------------------------------------------------------------------------------
+13- BLL.cs
+
+	using System;
+	using System.Collections.Generic;
+	using System.Linq;
+	using System.Text;
+	using System.Threading.Tasks;
+
+	namespace BLL
+	{
+		public class Base
+		{
+			private static readonly object syncLock = new object();
+			private ContactBL contactBL;
+			public ContactBL ContactBL
+			{
+				get
+				{	
+					if (contactBL == null)
+					{
+						lock (syncLock)
+						{
+							if (contactBL == null)
+								contactBL = new ContactBL();
+						}
+					}
+					return contactBL;	
+				}
+			}
+		}
+	}
+-------------------------------------------------------------------------------
+14- ContactBL.cs
+
+	using Models;
+	using DAL;
+	using System;
+	using System.Collections.Generic;
+	using System.Linq;
+	using System.Text;
+	using System.Threading.Tasks;
+
+	namespace BLL
+	{
+		public class ContactBL
+		{
+			private static readonly object syncLock = new object();
+			private ContactDAL contactDAL;
+			protected ContactDAL ContactDAL
+			{
+				get
+				{			
+					if (contactDAL == null)
+					{
+						lock (syncLock)
+						{
+							if (contactDAL == null)
+								contactDAL = new ContactDAL();
+						}
+					}
+					return contactDAL;	
+				}
+			}
+
+			public List<Contact> GetContacts()
+			{
+				return ContactDAL.GetContacts();
+			}
+		}
+	}
+
+-------------------------------------------------------------------------------	
+15- ContactDAL.cs
+
+	using Models;
+	using System;
+	using System.Collections.Generic;
+	using System.Linq;
+	using System.Text;
+	using System.Threading.Tasks;
+	using System.Web.Script.Serialization;
+
+	namespace DAL
+	{
+		public class ContactDAL
+		{
+			private List<Contact> Contacts = new List<Contact>();
+			private static readonly object syncLock = new object();
+			private JavaScriptSerializer serializer = new JavaScriptSerializer();
+
+			private DAL dal;
+			private DAL DAL
+			{
+				get
+				{
+					
+					if (dal == null)
+					{
+						lock (syncLock)
+						{
+							if (dal == null)
+								dal = new DAL();
+						}
+					}
+					return dal;	
+				}
+			}
+
+			public ContactDAL()
+			{
+			}
+
+			public List<Contact> GetContacts()
+			{
+				var ContacsFromSP = DAL.DBStoredProceedureRun("GetOrders", "tblName", "la liga", DateTime.Now.AddYears(-10), DateTime.Now, true, true);
+				Contacts = serializer.ConvertToType<List<Contact>>(ContacsFromSP);
+
+				return Contacts;
+			}
+		}
+	}
+	
+-------------------------------------------------------------------------------
+16- DAL.cs
+
+	using System;
+	using System.Collections.Generic;
+	using System.Data;
+	using System.Data.SqlClient;
+	using System.Linq;
+	using System.Text;
+	using System.Threading.Tasks;
+
+	namespace DAL
+	{
+		internal class DAL
+		{
+			private string connectionString;
+			public DAL()
+			{
+				string server = @"EDDIES-PC\SQLEXPRESS";
+				string DBName = "AppDB";
+				//string username = "eddie";
+				//string password = "aaa";
+				//string connectionString = // add db name if need @"Trusted_Connection=True; Server=" + server + "; Data Source=localhost; Initial Catalog=NLHospital; Integrated Security=false;user id=" + username + ";password=" + password;
+
+				connectionString = @"Trusted_Connection=True;Server=" + server + "; DataBase = " + DBName;
+			}
+			public List<Dictionary<string, dynamic>> DBStoredProceedureRun(string SPName, params object[] args)
+			{
+				var results = new List<Dictionary<string, dynamic>>();
+
+				using (SqlConnection connection = new SqlConnection(connectionString))
+				{
+					connection.Open();
+
+					SqlCommand cmd = new SqlCommand(SPName, connection);
+					cmd.CommandType = CommandType.StoredProcedure;
+					cmd.CommandTimeout = 60;
+
+					SqlCommandBuilder.DeriveParameters(cmd);
+					for (int i = 0; i < args.Length; i++)
+						cmd.Parameters[i + 1].Value = args[i];
+
+					var reader = cmd.ExecuteReader();
+
+					var columnNames = Enumerable.Range(0, reader.FieldCount).Select(reader.GetName).ToList();
+
+					while (reader.Read())
+					{
+						var result = new Dictionary<string, dynamic>();
+						foreach (var colName in columnNames)
+							result[colName] = reader[colName];
+						results.Add(result);
+					}
+
+					connection.Close();
+				}
+				return results;
+			}
+		}
+	}
+-------------------------------------------------------------------------------
+Step 17: In DAL: Change Connection string, SP name and DB name
+-------------------------------------------------------------------------------
+Step 18: add SP to SQL and use it, example:
+		USE AppDB
+		GO
+		create PROCEDURE GetOrders (
+			@TeamsTableName varchar(50), 
+			@compotition varchar(50),
+				@FromDate datetime,
+				@ToDAte datetime,
+				@IsBoth bit,
+				@MaleOrFemale bit
+		)
+		AS
+		BEGIN
+			  SELECT FullName,PhoneNumber , count(O.order_by_User) as NumOfOrders
+			  FROM [AppDB].[dbo].[User]
+			  join Orders O on UserId = O.order_by_User
+			  where OrderDate > @FromDate and  OrderDate < @ToDAte
+			  and (IsMale = @MaleOrFemale and @IsBoth = 0 or @IsBoth = 1)
+			  group by [FullName],PhoneNumber
+		END
+		
+------------------------------------------------------------------------------------
+19:webapp properties->web tab->specific page: Home/index#!/Login
+-----------------------------------------------------------------------
+Needed nugets for JWT:
+
+	System.IdentityModel.Tokens.Jwt
+	Microsoft.AspNet.WebApi.Core
+
+Some Examples:
+
+   $http({
+            method: "post", url: '../Data/Test',
+            headers: { "Authorization": "Bearer " + $rootScope.Token  },
+            data: { Data: "aaa" }
+        })
+            .then(function (response) {
+                $scope.a = response.data;
+                t = 4;
+            }, function (error) { });
+   
+   $window.sessionStorage.setItem("token", token);			
