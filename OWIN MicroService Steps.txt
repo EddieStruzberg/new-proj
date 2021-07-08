@@ -1,0 +1,120 @@
+Create Service and Domain Projects
+_______________________________________________________________________________
+install following nugets:
+
+Microsoft.ASPNET.webapi.owin
+Microsoft.Owin.Hosting;
+Microsoft.Owin.Host.HttpListener;
+Unity v 4.0.1
+
+NHIBERNATE
+FluentNHibernate
+________________________________________________________________________________
+Create Controller folder with relevant controller:
+ 
+public class HealthCheckController : ApiController
+    {
+        public HealthCheckController() 
+        {
+        }
+
+        [HttpGet]
+        [Route("FootBallStats/HealthCheck/")]
+        public HttpResponseMessage HealthCheck(HttpRequestMessage request)
+        {
+            HttpResponseMessage response = null;
+
+           response = request.CreateResponse<string>(HttpStatusCode.OK, "Im Healthy");
+
+            response.Headers.Add("Access-Control-Allow-Origin", "*");
+            return response;
+        }
+    }
+________________________________________________________________________________
+Create Configurations Folder:
+
+    public class WebApiConfig
+    {
+        public void Configure(HttpConfiguration config, IUnityContainer container)
+        {
+            config.MapHttpAttributeRoutes();
+        }
+    }
+	
+	public class OwinConfig
+    {
+        public void Configuration(IAppBuilder appBuilder)
+        {
+            HttpConfiguration config = new HttpConfiguration();
+
+            WebApiConfig webApiConfig = new WebApiConfig();
+
+            webApiConfig.Configure(config, ContainerConfig.UnityContainer);
+
+            config.EnsureInitialized();
+
+            appBuilder.UseWebApi(config);
+        }
+    }
+________________________________________________________________________________
+Create WindowsStart:
+
+    public class WindowsService 
+    {
+        private ILogger m_Logger;
+
+        private IDisposable m_WebApp;
+
+        public WindowsService()
+        {
+        }
+
+        internal void StartRunAndStop(string[] args)
+        {
+            Console.Title = "FootBallStats.Service";
+
+            this.OnStart(args);
+
+            Console.WriteLine("WebApi Started");
+            Console.ReadKey();
+
+            this.OnStop();
+        }
+
+        protected void OnStart(string[] args)
+        {
+            ContainerConfig.Configure();
+
+            var unityContainer = ContainerConfig.UnityContainer;
+
+            m_Logger = unityContainer.Resolve<ILogger>();
+
+            StartWebApi();
+
+            m_Logger.Info("FootBallStats.Service Service Started");
+        }
+
+        protected void OnStop()
+        {
+            m_Logger.Info("FootBallStats.Service Service Stopped");
+        }
+
+        private void StartWebApi()
+        {
+            //string baseUrlsSetting = ConfigurationManager.AppSettings["baseUrls"].ToString();
+
+            //string baseUrlsSetting = @"http://192.168.1.12:8085/";
+            string baseUrlsSetting = @"http://192.168.1.12:1112/";
+
+            string[] baseUrls = baseUrlsSetting.Split(';');
+
+            StartOptions startOptions = new StartOptions();
+
+            foreach (string baseUrl in baseUrls)
+                startOptions.Urls.Add(baseUrl);
+
+            m_WebApp = WebApp.Start<OwinConfig>(startOptions);
+        }
+    }
+________________________________________________________________________________
+	
